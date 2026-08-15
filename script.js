@@ -10,6 +10,47 @@
   });
 })();
 
+// ---------- Light/dark theme toggle (persists via localStorage) ----------
+(function () {
+  const STORAGE_KEY = "jenofiya-portfolio-theme";
+  const root = document.documentElement;
+  const btn = document.querySelector(".theme-toggle");
+
+  function systemPrefersDark() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  function applyTheme(theme) {
+    // theme is "light" or "dark"
+    root.setAttribute("data-theme", theme);
+    if (btn) {
+      btn.setAttribute("aria-pressed", String(theme === "dark"));
+      btn.textContent = theme === "dark" ? "☀ Light" : "🌙 Dark";
+    }
+  }
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  applyTheme(saved || (systemPrefersDark() ? "dark" : "light"));
+
+  if (btn) {
+    btn.addEventListener("click", function () {
+      const current = root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      localStorage.setItem(STORAGE_KEY, next);
+    });
+  }
+
+  // Follow system changes only if the user hasn't picked a theme manually
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+})();
+
 // ---------- Contact form validation ----------
 (function () {
   const form = document.getElementById("contact-form");
